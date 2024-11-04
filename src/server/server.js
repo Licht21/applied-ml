@@ -6,8 +6,8 @@ const InputError = require('../exceptions/InputError');
 
 const init = async () => {
     const server = Hapi.server({
-        port:3000,
-        host:'0.0.0.0',
+        port:8080,
+        host:"localhost",
         routes: {
             cors:{
                 origin:['*']
@@ -20,22 +20,22 @@ const init = async () => {
 
     server.route(routes);
     server.ext('onPreResponse', function (request, h) {
-        console.log(h)
         const response = request.response;
         if (response instanceof InputError) {
             const newResponse = h.response({
                 status: 'fail',
-                message: `${response.message} Silakan gunakan foto lain.`
+                message: response.message
             })
-            newResponse.code(response.statusCode)
+            newResponse.code(400)
             return newResponse;
         }
+        
         if (response.isBoom) {
             const newResponse = h.response({
                 status: 'fail',
                 message: response.message
             })
-            newResponse.code(response.statusCode)
+            newResponse.code(413)
             return newResponse;
         }
         return h.continue;
